@@ -1,7 +1,8 @@
 'use strict';
 /*global $ */
 $('#js-shopping-list-form').after('<input class="js-hide-checked" type="checkbox"><span class="slider round"> Click to hide checked items</span>');
-$('#js-shopping-list-form').after('<form id="js-search-item"><label for="search-for-item">Search For Item</label><input type="text" name="search-for-item" class="search-for-item" placeholder="e.g., hotdog"><button type="submit">Add item</button></form>');
+$('#js-shopping-list-form button:last-child').after('<button type="submit" id="js-search-button">Search</button>');
+$('#js-shopping-list-form button:last-child').after('<button type="reset" id="reset">Reset</button>');
 const store = { 
   items: [ 
     { item: 'Papayas', checked: false }, 
@@ -9,17 +10,6 @@ const store = {
   ],
   checkedHide: false
 };
-function handleSearchForItem(store){
-  $('#js-search-item').submit(function(event){
-    event.preventDefault();
-    const searchTerm = $('.search-for-item').val();
-    $('.search-for-item').val('');
-    console.log(searchTerm);
-    let filteredStore = store.items.filter(function(searchTerm, item){
-      console.log(searchTerm);
-    });
-  });
-}
 
 function generateItemElement(obj, index){
   return `
@@ -54,18 +44,19 @@ function renderShoppingList(store) {
     $('.js-shopping-list').html(genString);
   }
 }
-
 function addNewItemObjectToStore(newItem) {
   const newShoppingItemObj = { item: newItem, checked: false };
   store.items.push(newShoppingItemObj);
 }
 function handleNewItems(){
-  $('#js-shopping-list-form').submit(function(event){
+  $('#js-shopping-list-form button:first').on('click', function(event){
     event.preventDefault();
     const newItemName = $('.js-shopping-list-entry').val();
-    $('.js-shopping-list-entry').val('');
-    addNewItemObjectToStore(newItemName);
-    renderShoppingList(store);
+    if (newItemName !== '') {
+      $('.js-shopping-list-entry').val('');
+      addNewItemObjectToStore(newItemName);
+      renderShoppingList(store);
+    }
   });
 }
 function getItemIndexFromElement(item) {
@@ -104,12 +95,45 @@ function hideCheckedItems(store) {
     renderShoppingList(store);
   });
 }
-
-
-
 //User can type in a search term and the displayed list will be filtered by item names only containing that search term
-//User can edit the title of an item
+function handleSearchForItem(){
+  $('#js-search-button').on('click', function(event) {
+    event.preventDefault();
+    const searchTerm = $('.js-shopping-list-entry').val();
+    //if statment makes no change if empty search submited
+    if (searchTerm !== '') {
+      const filteredItems = store.items.filter(function(obj){
+        //works even if casing is different
+        return (obj.item === searchTerm || obj.item.toLowerCase() === searchTerm);
+      });
+      let genString = compileShoppingListStrings(filteredItems);
+      $('.js-shopping-list').html(genString);
+    }
+    $('.search-for-item').val('');
+  });
+}
+function resetListRendering() {
+  $('#js-shopping-list-form button:last-child').on('click', function(){
+    renderShoppingList(store);
+  });
+}
 
+//User can edit the title of an item
+function editItemTitle() {
+  $('.js-shopping-list').on('click', '.js-shopping-item', function(event) {
+    $(event.currentTarget).closest('li').html('<form id="shopping-item-change"><input class="shopping-item-change" type="text" name="change-item" placeholder="change item here"><button type="submit" class="js-update-name-button">Update</button></form>');
+    updateNewItemTitle();
+  });
+}
+function updateNewItemTitle() {
+  $('.js-update-name-button').on('click', function(event){
+    event.preventDefault();
+    let newItemTitle = $('.shopping-item-change').val();
+    let indexOfItemToBeChanged = getItemIndexFromElement(event.currentTarget);
+    store.items[indexOfItemToBeChanged].item = newItemTitle;
+    renderShoppingList(store);
+  });
+}
 
 
 function handAllMainFunctions(){
@@ -118,7 +142,9 @@ function handAllMainFunctions(){
   handleItemCheckedToggle();
   handleItemDeleteButton();
   hideCheckedItems(store);
-  handleSearchForItem()
+  handleSearchForItem();
+  resetListRendering();
+  editItemTitle();
 }
 
 handAllMainFunctions();
