@@ -1,8 +1,8 @@
 'use strict';
 /*global $ */
-$('#js-shopping-list-form').after('<input class="js-hide-checked" type="checkbox"><span class="slider round"> Click to hide checked items</span>');
+$('#js-shopping-list-form').after('<span class="slider round"> Click to hide checked items </span><input class="js-hide-checked" type="checkbox">');
 $('#js-shopping-list-form button:last-child').after('<button type="submit" id="js-search-button">Search</button>');
-$('#js-shopping-list-form button:last-child').after('<button type="reset" id="reset">Reset</button>');
+$('#js-shopping-list-form button:last-child').after('<button type="reset" id="reset">Reset</button><br><br>');
 const store = { 
   items: [ 
     { item: 'Papayas', checked: false }, 
