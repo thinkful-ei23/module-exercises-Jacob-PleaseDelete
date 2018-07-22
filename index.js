@@ -158,3 +158,5 @@ function handAllMainFunctions(){
 }
 // runs all main functions
 handAllMainFunctions();
+
+// new update check
